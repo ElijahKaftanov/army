@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+$kernel = new \App\Kernel();
+
+$app = $kernel->getContainer()->get(\Symfony\Component\Console\Application::class);
+
+$app->run();
+

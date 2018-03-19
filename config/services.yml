@@ -1,0 +1,32 @@
+parameters:
+  dir.app: '%dir.root%/src'
+
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+
+  App\Flyweight\UnitType\:
+    resource: '%dir.app%/Flyweight/UnitType/*'
+    tags: ['unit.type']
+
+  App\Flyweight\Terrain\:
+    resource: '%dir.app%/Flyweight/Terrain/*'
+    tags: ['terrain']
+
+  App\Factory\UnitFactory:
+    arguments:
+      - !tagged unit.type
+
+  Symfony\Component\Console\Application:
+    public: true
+    calls:
+     - ['add', ['@App\Command\MapGenerateCommand']]
+
+  App\Command\MapGenerateCommand: ~
+
+  App\Generator\MapGenerator:
+    arguments:
+      $terrains: !tagged terrain
+

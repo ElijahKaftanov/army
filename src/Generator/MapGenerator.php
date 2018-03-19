@@ -3,6 +3,7 @@
 namespace App\Generator;
 
 
+use App\Factory\CellFactory;
 use App\Factory\UnitFactory;
 use App\Model\Cell;
 use App\Model\CellInterface;
@@ -19,11 +20,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  */
 class MapGenerator
 {
-    /**
-     * @var TerrainInterface[]
-     */
-    private $terrains;
-
     protected static $defaultConfig = [
         'map' => [
             'max' => [
@@ -37,6 +33,12 @@ class MapGenerator
             'human' => 4,
             'machine' => 3,
             'aircraft' => 2
+        ],
+        'terrains' => [
+            'flat',
+            'water',
+            'mountains',
+            'swamp'
         ]
     ];
 
@@ -52,26 +54,20 @@ class MapGenerator
      * @var UnitFactory
      */
     private $unitFactory;
+    /**
+     * @var CellFactory
+     */
+    private $cellFactory;
 
     public function __construct(
 //        EventDispatcherInterface $dispatcher,
         UnitFactory $unitFactory,
-        iterable $terrains
+        CellFactory $cellFactory
     )
     {
 //        $this->dispatcher = $dispatcher;
         $this->unitFactory = $unitFactory;
-        foreach ($terrains as $terrain) {
-            $this->addTerrain($terrain);
-        }
-    }
-
-    /**
-     * @param TerrainInterface $terrain
-     */
-    private function addTerrain(TerrainInterface $terrain)
-    {
-        $this->terrains[$terrain->getId()] = $terrain;
+        $this->cellFactory = $cellFactory;
     }
 
     /**
@@ -155,7 +151,10 @@ class MapGenerator
         $matrix = [];
         for ($x = 0; $x <= $this->config['map']['max']['x']; $x++) {
             for ($y = 0; $y <= $this->config['map']['max']['x']; $y++) {
-                $matrix[] = new Cell(new Coords($x, $y), $this->getRandomTerrain());
+                $matrix[] = $this->cellFactory->create(
+                    new Coords($x, $y),
+                    $this->getRandomTerrainId()
+                );
             }
         }
 
@@ -163,11 +162,11 @@ class MapGenerator
     }
 
     /**
-     * @return TerrainInterface
+     * @return string
      */
-    private function getRandomTerrain(): TerrainInterface
+    private function getRandomTerrainId(): string
     {
-        $terrains = array_values($this->terrains);
-        return $terrains[rand(0, count($terrains) - 1)];
+        $coll = $this->config['terrains'];
+        return $coll[rand(0, count($coll) - 1)];
     }
 }

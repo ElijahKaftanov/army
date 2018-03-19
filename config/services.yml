@@ -19,6 +19,10 @@ services:
     arguments:
       - !tagged unit.type
 
+  App\Factory\CellFactory:
+    arguments:
+      - !tagged terrain
+
   Symfony\Component\Console\Application:
     public: true
     calls:
@@ -26,7 +30,5 @@ services:
 
   App\Command\MapGenerateCommand: ~
 
-  App\Generator\MapGenerator:
-    arguments:
-      $terrains: !tagged terrain
+  App\Generator\MapGenerator: ~
 
